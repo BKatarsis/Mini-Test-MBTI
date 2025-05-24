@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Test MBTI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #f9d5e5, #c3bef0, #a4d0fa);
+    color: #333;
+  }
+  header {
+    background: #d1b3ff;
+    padding: 1.5rem;
+    text-align: center;
+    color: #3a006e;
+    font-weight: 700;
+    font-size: 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  main {
+    max-width: 900px;
+    margin: 2rem auto 4rem;
+    background: #ffffffdd;
+    padding: 2rem 3rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 16px rgba(163, 137, 252, 0.3);
+  }
+  form > div.question {
+    margin-bottom: 1.6rem;
+  }
+  div.question > p {
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .options {
+    display: flex;
+    justify-content: space-between;
+    max-width: 600px;
+    margin-left: auto;
+    margin-top: 0.4rem;
+  }
+  .options label {
+    flex: 1;
+    font-size: 0.9rem;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    color: #555;
+  }
+  .options input[type="radio"] {
+    display: none;
+  }
+  .options input[type="radio"]:checked + span {
+    background-color: #f48fb1; /* pastel pink */
+    color: white;
+    font-weight: 700;
+    border-radius: 8px;
+    padding: 0.3rem 0;
+    display: inline-block;
+  }
+  button#submit-btn {
+    background-color: #ce93d8;
+    color: white;
+    border: none;
+    padding: 0.85rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    box-shadow: 0 6px 12px rgba(206, 147, 216, 0.35);
+    transition: background-color 0.3s ease;
+  }
+  button#submit-btn:hover {
+    background-color: #b669bf;
+  }
+  section#result {
+    max-width: 900px;
+    margin: 2rem auto 4rem;
+    background: #ede7f6;
+    border-radius: 15px;
+    padding: 2rem 3rem;
+    box-shadow: 0 4px 20px rgba(177, 152, 217, 0.2);
+    display: none;
+  }
+  section#result h2 {
+    color: #7e57c2;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  section#result p.explanation {
+    line-height: 1.5rem;
+    font-size: 1.1rem;
+    white-space: pre-line;
+    color: #333;
+  }
+  footer {
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  @media (max-width: 600px) {
+    main,
+    section#result {
+      padding: 1rem 1.5rem;
+    }
+    .options {
+      flex-wrap: wrap;
+    }
+    .options label {
+      flex: 0 0 48%;
+      margin-bottom: 0.4rem;
+    }
+  }
+</style>
+</head>
+<body>
+<header>Mini Test MBTI</header>
+<main>
+<form id="mbti-form" novalidate></form>
+<button id="submit-btn">Lihat Hasil</button>
+</main>
+<section id="result" aria-live="polite" aria-atomic="true">
+  <h2>Hasil MBTI Anda</h2>
+  <p id="result-type" style="font-weight: 700; font-size:1.3rem; text-align:center; margin-bottom:1rem;"></p>
+  <p id="result-explanation" class="explanation"></p>
+</section>
+<footer>BKATARSIS &copy; 2025</footer>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var statements = [
+    { text: "Saya merasa full energi ketika berada di tengah keramaian dan suka berinteraksi dengan banyak orang.", dimension: "EI", polarity: "E" },
+    { text: "Saya lebih suka menghabiskan waktu sendiri untuk mengisi energi.", dimension: "EI", polarity: "I" },
+    { text: "Saya mendapatkan semangat dari pengalaman baru dan beragam.", dimension: "EI", polarity: "E" },
+    { text: "Saya menikmati waktu tenang untuk refleksi diri dibandingkan pesta yang ramai.", dimension: "EI", polarity: "I" },
+    { text: "Berbicara dengan orang baru membuat saya merasa bersemangat.", dimension: "EI", polarity: "E" },
+    { text: "Saya lebih nyaman dengan diskusi mendalam dan personal daripada ngobrol ringan dengan banyak orang.", dimension: "EI", polarity: "I" },
+    { text: "Saya suka menjadi pusat perhatian dalam suatu kelompok.", dimension: "EI", polarity: "E" },
+    { text: "Saya cenderung pendiam dan pemikir dalam kelompok sosial.", dimension: "EI", polarity: "I" },
+    { text: "Saya mendapatkan energi dari melakukan banyak kegiatan sosial.", dimension: "EI", polarity: "E" },
+    { text: "Saya lebih suka mengamati sebelum ikut berpartisipasi dalam pertemuan sosial.", dimension: "EI", polarity: "I" },
+    { text: "Saya mempercayai fakta dan apa yang nyata daripada teori atau imajinasi.", dimension: "SN", polarity: "S" },
+    { text: "Saya suka membayangkan kemungkinan dan ide-ide baru daripada fokus pada detail sekarang.", dimension: "SN", polarity: "N" },
+    { text: "Saya menyukai hal-hal yang praktis dan berhubungan dengan pengalaman langsung.", dimension: "SN", polarity: "S" },
+    { text: "Saya lebih tertarik pada makna dan hubungan di balik kejadian dan informasi.", dimension: "SN", polarity: "N" },
+    { text: "Saya mudah melihat fakta-fakta konkret dalam situasi sehari-hari.", dimension: "SN", polarity: "S" },
+    { text: "Saya sering memikirkan masa depan dan tujuan jangka panjang.", dimension: "SN", polarity: "N" },
+    { text: "Saya cenderung realistis dan fokus pada apa yang ada saat ini.", dimension: "SN", polarity: "S" },
+    { text: "Saya lebih suka ide-ide abstrak daripada detail teknis.", dimension: "SN", polarity: "N" },
+    { text: "Saya menikmati mengikuti prosedur dan rutinitas yang sudah terbukti.", dimension: "SN", polarity: "S" },
+    { text: "Saya menyukai tantangan berpikir kreatif dan melihat gambaran besar.", dimension: "SN", polarity: "N" },
+    { text: "Saya membuat keputusan berdasarkan logika dan objektivitas.", dimension: "TF", polarity: "T" },
+    { text: "Saya mempertimbangkan perasaan orang lain saat mengambil keputusan.", dimension: "TF", polarity: "F" },
+    { text: "Keadilan dan prinsip adalah hal penting dalam cara saya menilai sesuatu.", dimension: "TF", polarity: "T" },
+    { text: "Saya mengutamakan harmoni dan hubungan dalam interaksi saya.", dimension: "TF", polarity: "F" },
+    { text: "Saya suka menganalisis masalah secara kritis dan rasional.", dimension: "TF", polarity: "T" },
+    { text: "Saya sering mendengarkan intuisi perasaan ketika menghadapi konflik.", dimension: "TF", polarity: "F" },
+    { text: "Saya tidak ragu untuk memberikan kritik yang jujur demi kebaikan.", dimension: "TF", polarity: "T" },
+    { text: "Saya menghargai empati dan pengertian dalam berhubungan dengan orang.", dimension: "TF", polarity: "F" },
+    { text: "Saya percaya keputusan terbaik dibuat dengan kepala dingin.", dimension: "TF", polarity: "T" },
+    { text: "Saya peduli pada perasaan orang lain dan sering berusaha mengurangi ketegangan.", dimension: "TF", polarity: "F" },
+    { text: "Saya suka mengatur segala sesuatu dengan rencana yang jelas dan terstruktur.", dimension: "JP", polarity: "J" },
+    { text: "Saya cenderung fleksibel dan spontan dalam menghadapi situasi.", dimension: "JP", polarity: "P" },
+    { text: "Saya merasa nyaman ketika semuanya sudah terorganisir dan ada jadwal.", dimension: "JP", polarity: "J" },
+    { text: "Saya suka menjalani hari tanpa terlalu banyak perencanaan dan mengikuti arus.", dimension: "JP", polarity: "P" },
+    { text: "Saya senang menyelesaikan tugas sebelum batas waktu.", dimension: "JP", polarity: "J" },
+    { text: "Saya lebih suka menunggu dan melihat apa yang terjadi daripada memutuskan terlalu awal.", dimension: "JP", polarity: "P" },
+    { text: "Saya menghargai disiplin dan konsistensi dalam hidup saya.", dimension: "JP", polarity: "J" },
+    { text: "Saya terbuka terhadap perubahan mendadak dan suka improvisasi.", dimension: "JP", polarity: "P" },
+    { text: "Saya merasa lega jika semua hal sudah direncanakan dan dipersiapkan.", dimension: "JP", polarity: "J" },
+    { text: "Saya lebih suka menjaga pilihan tetap terbuka dan fleksibel.", dimension: "JP", polarity: "P" }
+  ];
+
+  var mbtiExplanations = {
+    ISTJ: "ISTJ - The Logistician (Penyelenggara)\nISTJ adalah pribadi yang bertanggung jawab, serius, dan sangat mengutamakan aturan dan tradisi. Mereka praktis dan teliti, dengan kemampuan mengatur dan menyelesaikan tugas secara sistematis. ISTJ dapat diandalkan dan setia, mengutamakan fakta dan detail dalam mengambil keputusan dan menjalani kehidupan sehari-hari.",
+    ISFJ: "ISFJ - The Defender (Pelindung)\nISFJ dikenal penuh perhatian, ramah, dan sangat peduli pada kesejahteraan orang lain. Mereka senang membantu dan suka menjaga harmoni dalam lingkungan sekitar. Individu ISFJ sangat bertanggung jawab, praktis, dan suka menjalankan tugas dengan penuh ketelitian dan kesungguhan.",
+    INFJ: "INFJ - The Advocate (Pemberi Nasihat)\nINFJ adalah pribadi yang idealis, berpikiran mendalam, dan penuh empati. Mereka sangat mengutamakan nilai dan tujuan hidup yang bermakna, serta sering memiliki visi untuk masa depan. INFJ cenderung tenang dan penuh perasaan, serta mampu memahami dan memberi motivasi pada orang lain.",
+    INTJ: "INTJ - The Architect (Arsitek)\nINTJ adalah pemikir strategis yang visioner dan analitis. Mereka senang memecahkan masalah kompleks dengan cara yang logis dan terstruktur. Individu INTJ mandiri, percaya diri, dan fokus pada pencapaian tujuan serta pengembangan diri secara kontinu.",
+    ISTP: "ISTP - The Virtuoso (Ahli)\nISTP suka bereksperimen dan mencari pengalaman baru secara langsung. Mereka sangat praktis, fleksibel, serta suka memecahkan masalah teknis dengan cepat dan efisien. ISTP cenderung tenang, mandiri, dan suka kebebasan dalam menentukan langkahnya.",
+    ISFP: "ISFP - The Adventurer (Petualang)\nISFP adalah pribadi yang santai, artistik, dan mudah beradaptasi. Mereka menikmati keindahan dan pengalaman indrawi, serta cenderung hidup untuk saat ini. ISFP lembut dan ramah, sangat menghargai kebebasan dan ekspresi diri.",
+    INFP: "INFP - The Mediator (Penyelaras)\nINFP adalah idealis yang sangat peduli dengan nilai dan makna hidup. Mereka empatik, kreatif, dan suka menjaga kedamaian serta hubungan yang harmonis. INFP sering merenung dan berupaya memahami diri sendiri dan orang lain secara mendalam.",
+    INTP: "INTP - The Logician (Ahli Logika)\nINTP adalah pemikir analitis dan inquisitif yang senang memahami prinsip-prinsip dasar di balik segala sesuatu. Mereka independen, suka berpikir abstrak, dan sering mencari solusi inovatif untuk masalah rumit. INTP cenderung pendiam dan berpikiran terbuka.",
+    ESTP: "ESTP - The Entrepreneur (Pengusaha)\nESTP adalah pribadi yang energik, spontan, dan menyukai tantangan baru. Mereka sangat praktis dan suka berinteraksi dengan orang lain. ESTP cepat beradaptasi dengan situasi dan cenderung hidup dengan penuh aksi serta antusiasme.",
+    ESFP: "ESFP - The Entertainer (Penghibur)\nESFP ramah, hangat, dan suka bersenang-senang. Mereka menghargai momen sosial dan hidup penuh warna. ESFP mudah bergaul dan cenderung hidup untuk saat ini serta sangat menikmati pengalaman indrawi dan hiburan.",
+    ENFP: "ENFP - The Campaigner (Kampanye)\nENFP adalah pribadi yang penuh semangat, antusias, dan kreatif. Mereka sangat peduli pada hubungan dan ide-ide baru. ENFP suka menggali potensi diri dan orang lain serta sangat inspiratif dan komunikatif.",
+    ENTP: "ENTP - The Debater (Penggugat)\nENTP adalah pemikir kreatif dan energik yang suka mempertanyakan dan mengeksplorasi berbagai ide. Mereka suka debat dan tantangan intelektual. ENTP cepat dalam memunculkan gagasan baru dan sangat adaptif dalam berbagai situasi.",
+    ESTJ: "ESTJ - The Executive (Eksekutif)\nESTJ adalah pemimpin alami yang tegas, terorganisir, dan berorientasi pada hasil. Mereka mengutamakan efisiensi dan aturan dalam menjalankan tugas. ESTJ bertanggung jawab dan karena kepraktisannya, sering menjadi pilar dalam komunitas atau pekerjaan.",
+    ESFJ: "ESFJ - The Consul (Konsul)\nESFJ adalah pribadi yang ramah, peka terhadap kebutuhan orang lain, dan sangat peduli hubungan sosial. Mereka suka membantu dan menjaga keharmonisan kelompok. ESFJ juga terorganisir dan teliti dalam pekerjaan serta kehidupan sehari-hari.",
+    ENFJ: "ENFJ - The Protagonist (Protagonis)\nENFJ adalah pemimpin karismatik yang penuh empati dan inspirasi. Mereka peduli pada pertumbuhan dan kesejahteraan orang lain. ENFJ mencari kedamaian dan sering berperan sebagai motivator serta pendukung dalam kelompok sosial.",
+    ENTJ: "ENTJ - The Commander (Komandan)\nENTJ adalah pemimpin yang tegas, strategis, dan berorientasi pada hasil. Mereka memiliki visi yang jelas dan mampu mengorganisir orang lain untuk mencapai tujuan. ENTJ sangat percaya diri dan tidak ragu untuk mengambil keputusan yang sulit."
+  };
+
+  function createQuestionHTML(index, statement) {
+    var name = "q" + index;
+    var html = '<div class="question">';
+    html += '<p>' + (index + 1) + '. ' + statement.text + '</p>';
+    html += '<div class="options">';
+    html += '<label><input type="radio" name="' + name + '" value="1" required /><span>Sangat Tidak Setuju</span></label>';
+    html += '<label><input type="radio" name="' + name + '" value="2" /><span>Tidak Setuju</span></label>';
+    html += '<label><input type="radio" name="' + name + '" value="3" /><span>Netral</span></label>';
+    html += '<label><input type="radio" name="' + name + '" value="4" /><span>Setuju</span></label>';
+    html += '<label><input type="radio" name="' + name + '" value="5" /><span>Sangat Setuju</span></label>';
+    html += '</div></div>';
+    return html;
+  }
+
+  var form = document.getElementById("mbti-form");
+  for (var i = 0; i < statements.length; i++) {
+    form.insertAdjacentHTML("beforeend", createQuestionHTML(i, statements[i]));
+  }
+
+  function calculateMBTI(answers) {
+    var dimensionScores = {
+      EI: 0,
+      SN: 0,
+      TF: 0,
+      JP: 0
+    };
+
+    for (var i = 0; i < statements.length; i++) {
+      var ans = parseInt(answers[i]);
+      var stmt = statements[i];
+      var val = ans - 3;
+      if (["I","N","F","P"].indexOf(stmt.polarity) !== -1) {
+        val = -val;
+      }
+      dimensionScores[stmt.dimension] += val;
+    }
+
+    var result = "";
+    result += dimensionScores.EI >= 0 ? "E" : "I";
+    result += dimensionScores.SN >= 0 ? "S" : "N";
+    result += dimensionScores.TF >= 0 ? "T" : "F";
+    result += dimensionScores.JP >= 0 ? "J" : "P";
+
+    return result;
+  }
+
+  var submitBtn = document.getElementById("submit-btn");
+  var resultSection = document.getElementById("result");
+  var resultType = document.getElementById("result-type");
+  var resultExplanation = document.getElementById("result-explanation");
+
+  submitBtn.addEventListener("click", function() {
+    var answers = [];
+    for (var i = 0; i < statements.length; i++) {
+      var qName = "q" + i;
+      var radios = document.getElementsByName(qName);
+      var selected = null;
+      for (var j = 0; j < radios.length; j++) {
+        if (radios[j].checked) {
+          selected = radios[j].value;
+          break;
+        }
+      }
+      if (!selected) {
+        alert("Silakan jawab pertanyaan nomor " + (i + 1) + " terlebih dahulu.");
+        return;
+      }
+      answers.push(selected);
+    }
+
+    var mbtiResult = calculateMBTI(answers);
+    resultType.textContent = mbtiResult;
+    if (mbtiExplanations.hasOwnProperty(mbtiResult)) {
+      resultExplanation.textContent = mbtiExplanations[mbtiResult];
+    } else {
+      resultExplanation.textContent = "Maaf, terjadi kesalahan dalam menentukan tipe kepribadian Anda.";
+    }
+
+    resultSection.style.display = "block";
+    resultSection.scrollIntoView({ behavior: "smooth" });
+  });
+});
+</script>
+</body>
+</html>
+
